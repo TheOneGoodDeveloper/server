@@ -208,38 +208,39 @@ export const create_skill_Improvement = async (req, res) => {
 };
 
 export const update_skill_Improvement = async (req, res) => {
-  const { id, skill_improvement } = req?.body;
+  const { id, skill_improvement, skills_approval_status } = req?.body;
+  let updateQuery = {};
   try {
-
-  if (role === "team lead" || role === "manager") {
-    // For both team lead and manager, update skill_improvement using $push
-    const updateQuery = {
-      $push: { skill_improvement },
-    };
-
-    // Additional fields update if the user is a manager
-    if (req.user.role === "manager") {
-      updateQuery.$set = {
-        skills_approval_status: skills_approval_status || "", //"Pending", "Approved", "Rejected"
-        skill_imp_reviewed_by: req.user.id || "",
+    if (req.user.role == "team lead" || req.user.role === "manager") {
+      updateQuery = {
+        $push: { skill_improvement },
       };
-    }
-  }
-  await TaskModel.findByIdAndUpdate({ _id: id }, updateQuery, {
-    new: true,
-  })
-    .then((updateSkill) => {
-      return res.status(200).json({
-        status: true,
-        message: "Skill Improvement added successfully",
-        data: updateSkill,
-      });
-    })
-    .catch((err) => {
+      if (req.user.role === "manager") {
+        updateQuery.$set = {
+          skills_approval_status: skills_approval_status || "", //"Pending", "Approved", "Rejected"
+          skill_imp_reviewed_by: req.user.id || "",
+        };
+      }
+    } else {
       return res
         .status(200)
-        .json({ status: false, message: "Error in Creating" });
-    });
+        .json({ status: false, message: "No Authorization" });
+    }
+    await TaskModel.findByIdAndUpdate({ _id: id }, updateQuery, {
+      new: true,
+    })
+      .then((updateSkill) => {
+        return res.status(200).json({
+          status: true,
+          message: "Skill Improvement added successfully",
+          data: updateSkill,
+        });
+      })
+      .catch((err) => {
+        return res
+          .status(200)
+          .json({ status: false, message: "Error in Creating" });
+      });
   } catch {
     return res
       .status(200)
