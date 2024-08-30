@@ -131,9 +131,8 @@ export const getTask = async (req, res) => {
     });
 };
 
-export const updateTask = async (res, req) => {
+export const updateTask = async (req, res) => {
   const {
-    id,
     project_title,
     project_description,
     project_ownership,
@@ -146,8 +145,104 @@ export const updateTask = async (res, req) => {
     end_date,
     task_description,
   } = req?.body;
-
   if (req.user.role == "admin") {
-    await TaskModel.findByIdAndUpdate({ _id: id });
+    const updateTask = {
+      project_title,
+      project_description,
+      project_ownership,
+      assigned_to,
+      assigned_by,
+      report_to,
+      status,
+      priority,
+      start_date,
+      end_date,
+      task_description,
+    };
+    await TaskModel.findByIdAndUpdate({ _id: req.body.id }, updateTask, {
+      new: true,
+    }).then((updatedTask) => {
+      return res.status(200).json({
+        status: true,
+        message: "Updated Successfully",
+        data: updateTask,
+      });
+    });
+  } else {
+    return res
+      .status(200)
+      .json({ status: "false", message: "No authoraization" });
+  }
+};
+
+export const create_skill_Improvement = async (req, res) => {
+  const { id, skill_improvement } = req?.body;
+  try {
+    if (req.user.role == "employee") {
+      await TaskModel.findByIdAndUpdate(
+        { _id: id },
+        { $set: { skill_improvement } },
+        { new: true }
+      )
+        .then((createdSkill) => {
+          return res.status(200).json({
+            status: true,
+            message: "Created Skill Improvement Successfully",
+          });
+        })
+        .catch((err) => {
+          return res
+            .status(200)
+            .json({ status: true, message: "Error Filling Skill Improvrment" });
+        });
+    } else {
+      return res
+        .status(200)
+        .json({ status: false, message: "No Authorization" });
+    }
+  } catch {
+    return res
+      .status(200)
+      .json({ status: false, message: "Internal Server Error" });
+  }
+};
+
+export const update_skill_Improvement = async (req, res) => {
+  const { id, skill_improvement } = req?.body;
+  try {
+
+  if (role === "team lead" || role === "manager") {
+    // For both team lead and manager, update skill_improvement using $push
+    const updateQuery = {
+      $push: { skill_improvement },
+    };
+
+    // Additional fields update if the user is a manager
+    if (req.user.role === "manager") {
+      updateQuery.$set = {
+        skills_approval_status: skills_approval_status || "", //"Pending", "Approved", "Rejected"
+        skill_imp_reviewed_by: req.user.id || "",
+      };
+    }
+  }
+  await TaskModel.findByIdAndUpdate({ _id: id }, updateQuery, {
+    new: true,
+  })
+    .then((updateSkill) => {
+      return res.status(200).json({
+        status: true,
+        message: "Skill Improvement added successfully",
+        data: updateSkill,
+      });
+    })
+    .catch((err) => {
+      return res
+        .status(200)
+        .json({ status: false, message: "Error in Creating" });
+    });
+  } catch {
+    return res
+      .status(200)
+      .json({ status: false, message: "Internal Server Error" });
   }
 };
