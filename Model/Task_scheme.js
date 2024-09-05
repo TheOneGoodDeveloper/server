@@ -48,6 +48,17 @@ const taskScheme = new mongoose.Schema({
   skill_improvement: [
     {
       type: Object,
+      sentFromId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+      message: { type: String },
+      date: { type: Date, default: Date.now }, // Date field with default value
+    },
+  ],
+  growth_assessment: [
+    {
+      type: Object,
       comments: {
         sentFromId: {
           type: mongoose.Schema.Types.ObjectId,
@@ -65,7 +76,11 @@ const taskScheme = new mongoose.Schema({
   skill_imp_reviewed_by: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
-  }
+  },
+  is_deleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 export const TaskModel = mongoose.model("task", taskScheme);

@@ -29,6 +29,16 @@ userRoute.post(
   User.authMiddleware,
   Task.update_skill_Improvement
 );
+userRoute.post(
+  "/createGrowthAssessment",
+  User.authMiddleware,
+  Task.create_growth_assessment
+);
+userRoute.post(
+  "/updateGrowthAssessment",
+  User.authMiddleware,
+  Task.update_growth_assessment
+);
 
 userRoute.get("/exportXLSX", User.exportXLSX);
 // userRoute.post("/profie", View_profile);

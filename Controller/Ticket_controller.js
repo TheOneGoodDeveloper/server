@@ -84,6 +84,7 @@ export const updateTicket = async (req, res) => {
   }
 };
 
+
 export const deleteTicket = async (req, res) => {
   const { _id } = req?.body;
   try {
